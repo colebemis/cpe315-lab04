@@ -27,4 +27,40 @@
 	.global	matadd
 	.syntax unified
 	.arm
+
+/*
+ * r4: i
+ * r5: j
+ */
+
 matadd:
+  push {r4, r5, r6, r7, r8, r9, lr}
+  
+  mov r4, r3 @ initialize i to height
+
+loop1:
+  cmp r4, #0
+  beq end
+
+  ldr r5, [sp, #16] @ initialize j to width
+
+loop2:
+  cmp r5, #0
+  beq endloop1
+
+  @ load value A[i][j] into r6
+  @ load value B[i][j] into r7
+  @ add r6 and r7 and store r8
+  @ load address C[i][j] in r9
+  @ store r8 at r9
+
+  sub r5, r5, #1
+  b loop2
+
+endloop1:
+  sub r4, r4, #1
+  b loop1
+  
+end:
+  pop {r4, r5, r6, r7, r8, r9, pc}
+
