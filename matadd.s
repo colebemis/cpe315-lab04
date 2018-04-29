@@ -42,14 +42,8 @@
 matadd:
   push {r4, r5, r6, r7, r8, r9, r10, lr}
 
-  @ save width
-  ldr r10, [sp, #32]
-  
   @ initialize i (r4) to height
   mov r4, r3
-
-  @ldr r0, =print
-  @bl printf
 
 loop1:
   cmp r4, #0
@@ -68,29 +62,22 @@ loop2:
   @ decrement r5 if it doesn't equal 0
   sub r5, r5, #1
 
-  mul r9, r10, r4 @ width * row
-  add r9, r9, r5 @ col + (width * row)
-
   @ load value of A[i][j] into r6
-  ldr r6, [r1, r9]
-  @ldr r6, [r6, r5]
-
-  @ldr r0, =print
-  @bl printf
-  
+  ldr r6, [r1, r4, lsl #2]
+  ldr r6, [r6, r5, lsl #2]
 
   @ load value of B[i][j] into r7
-  ldr r7, [r2, r9]
-  @ldr r7, [r7, r5]
+  ldr r7, [r2, r4, lsl #2]
+  ldr r7, [r7, r5, lsl #2]
 
   @ add r6 and r7, store in r8
   add r8, r6, r7
 
   @ load address of C[i][j] into r9
-  @ldr r9, [r0, r4]
+  ldr r9, [r0, r4, lsl #2]
 
   @ store r8 into address stored in r9
-  str r8, [r0, r9]
+  str r8, [r9, r5, lsl #2]
 
   b loop2
 
