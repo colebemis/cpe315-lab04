@@ -28,140 +28,74 @@
 	.syntax unified
 	.arm
 
-matadd:
-  push {r4, r5, r6, r7, r8, r9, r10, lr}
-
-  ldr r10, [sp, #32]
-
-  mul r4, r3, r10
-
-loop:
-  cmp r4, #0
-  beq end
-  sub r4, r4, #1
-
-  @ A[i][j]
-  ldr r5, [r1, r4]
-
-  @ B[i][j]
-  ldr r6, [r2, r4]
-
-  @ A[i][j] + B[i][j]
-  add r7, r5, r6
-
-  @ C[i][j] = r7
-  str r7, [r0, r4]
-
-  b loop
-
-end:
-  pop {r4, r5, r6, r7, r8, r9, r10, pc}
-
 /*
+ * r0: C
+ * r1: A
+ * r2: B
+ * r3: height
+ * on stack: width
+ *
+ * r4: i
+ * r5: j
+ */
+
 matadd:
   push {r4, r5, r6, r7, r8, r9, r10, lr}
 
-  ldr r10, [sp, #32] @ store width
+  @ save width
+  ldr r10, [sp, #32]
+  
+  @ initialize i (r4) to height
+  mov r4, r3
 
-  mov r4, r3 @ initialize i to height
+  @ldr r0, =print
+  @bl printf
 
 loop1:
   cmp r4, #0
   beq end
-  sub r4, r4, #1
-  ldr r0, =height
-  mov r1, r4
-  bl printf
 
-  ldr r5, [sp, #32] @ initialize j to width
+  @ decrement r4 if it doesn't equal 0
+  sub r4, r4, #1
+
+  @ initialize j (r5) to width
+  ldr r5, [sp, #32]
 
 loop2:
   cmp r5, #0
   beq loop1
-  sub r5, r5, #1
-  
-  ldr r0, =width
-  mov r1, r5
-  bl printf
 
-  @ row * width + col
-  @ mul r10, r4, r7
-  @ add r10, r10, r5
-
-
-  @ load value A[i][j] into r6
-  @ ldr r6, [r1, r10]
-  ldr r0, =width
-  mov r1, r7
-  bl printf
-
-
-  @ load valsdfaue B[i][j] into r7
-  
-
-
-  @ add r6 and r7 and store r8
-  @ load address C[i][j] in r9
-  @ store r8 at r9
-
-  b loop2
-  
-  ldr r0, =height
-  mov r1, r4
-  bl printf
-
-
-  ldr r0, =width
-  mov r1, r5
-  bl printf
-end:
-  pop {r4, r5, r6, r7, r8, r9, r10, pc}
-
-string:
- .asciz "Hello world\n"
-height:
-  .asciz "height: %d\n"
-width:
-  .asciz "width: %d\n"
-
- * r4: i (height)
- * r5: j (width)
-matadd:
-  push {r4, r5, r6, r7, r8, r9, lr}
-  
-  mov r4, r3 @ initialize i to height
-
-loop1:
-  cmp r4, #0
-  beq end
-  sub r4, r4, #1
-
-  ldr r5, [sp, #28] @ initialize j to width
-
-loop2:
-  cmp r5, #0
-  beq loop1
+  @ decrement r5 if it doesn't equal 0
   sub r5, r5, #1
 
-  @ load value A[i][j] into r6
-  ldr r6, [r1, r4]
-  ldr r6, [r6, r5]
+  mul r9, r10, r4 @ width * row
+  add r9, r9, r5 @ col + (width * row)
 
-  @ load value B[i][j] into r7
-  ldr r7, [r2, r4]
-  ldr r7, [r7, r5]
+  @ load value of A[i][j] into r6
+  ldr r6, [r1, r9]
+  @ldr r6, [r6, r5]
 
-  @ add r6 and r7 and store r8
+  @ldr r0, =print
+  @bl printf
+  
+
+  @ load value of B[i][j] into r7
+  ldr r7, [r2, r9]
+  @ldr r7, [r7, r5]
+
+  @ add r6 and r7, store in r8
   add r8, r6, r7
 
-  @ load address C[i][j] in r9
-  ldr r9, [r0, r4]
+  @ load address of C[i][j] into r9
+  @ldr r9, [r0, r4]
 
-  @ store r8 at r9
-  str r8, [r9, r5]
+  @ store r8 into address stored in r9
+  str r8, [r0, r9]
 
   b loop2
 
 end:
-  pop {r4, r5, r6, r7, r8, r9, pc}
-*/
+  pop {r4, r5, r6, r7, r8, r9, r10, pc}
+
+print:
+  .asciz "%x\n"
