@@ -1,0 +1,7 @@
+#!/bin/sh
+# purpose: automate optimization testing
+counter=0
+vim Makefile
+make
+perf stat ./matadd > my.out
+
